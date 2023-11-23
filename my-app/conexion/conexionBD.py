@@ -8,9 +8,10 @@ def connectionBD():
     try:
         # connection = mysql.connector.connect(
         connection = mysql.connector.connect(
-            host="localhost",
+            host="viaduct.proxy.rlwy.net",
+            port=20522,
             user="root",
-            passwd="",
+            passwd="-D2eD6aDb5Bg6dEbhAAeBB6gd3EheaBg",
             database="crud_python",
             charset='utf8mb4',
             collation='utf8mb4_unicode_ci',
