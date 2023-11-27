@@ -149,11 +149,12 @@ def reporteAccesos():
 
 @app.route("/interfaz-clave", methods=['GET','POST'])
 def claves():
-    return render_template('public/usuarios/user_login.html')
+    return render_template('public/usuarios/generar_clave.html', dataLogin=dataLoginSesion())
     
-@app.route('/generar-y-guardar-clave', methods=['GET','POST'])
-def generar_clave():
+@app.route('/generar-y-guardar-clave/<string:id>', methods=['GET','POST'])
+def generar_clave(id):
+    print(id)
     clave_generada = crearClave()  # Llama a la función para generar la clave
-    guardarClaveAuditoria(clave_generada)
-    return clave_generada 
+    guardarClaveAuditoria(clave_generada,id)
+    return clave_generada
 #Crear registro de auditoria

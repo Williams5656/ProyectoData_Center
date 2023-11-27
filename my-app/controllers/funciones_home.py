@@ -446,7 +446,7 @@ def dataReportes():
     try:
         with connectionBD() as conexion_MYSQLdb:
             with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
-                querySQL = "SELECT a.id_acceso, u.cedula, a.fecha, a.clave FROM accesos a JOIN usuarios u WHERE u.id_usuario = a.id_usuario"
+                querySQL = "SELECT a.id_acceso, u.cedula, a.fecha, a.clave FROM accesos a JOIN usuarios u WHERE u.id_usuario = a.id_usuario ORDER BY a.fecha DESC"
                 cursor.execute(querySQL)
                 reportes = cursor.fetchall()
         return reportes
@@ -476,16 +476,16 @@ def crearClave():
     print("La clave generada es:", clave)
     return clave
 ##GUARDAR CLAVES GENERADAS EN AUDITORIA
-def guardarClaveAuditoria(clave_audi):
+def guardarClaveAuditoria(clave_audi,id):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
-                    sql = "INSERT INTO auditoria(password) VALUES (%s)"
-                    valores = (clave_audi,)
+                    sql = "INSERT INTO accesos (fecha, clave, id_usuario) VALUES (NOW(),%s,%s)"
+                    valores = (clave_audi,id)
                     mycursor.execute(sql, valores)
                     conexion_MySQLdb.commit()
                     resultado_insert = mycursor.rowcount
                     return resultado_insert 
         
     except Exception as e:
-        return f'Se produjo un error en procesar_form_claves: {str(e)}'
+        return f'Se produjo un error en crear Clave: {str(e)}'
