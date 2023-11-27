@@ -23,23 +23,37 @@
             action="{{ url_for('cpanelResgisterUserBD') }}"
             method="POST">
             <div class="mb-3">
-              <label for="name_surname" class="form-label">
-                Nombre y apellido
+              <label for="cedula" class="form-label">
+                Cedula
               </label>
               <input
                 type="text"
                 class="form-control"
-                name="name_surname"
+                name="cedula"
                 required
                 autofocus />
             </div>
             <div class="mb-3">
-              <label for="email_user" class="form-label">Email</label>
+              <label for="name_surname" class="form-label">
+                Nombre
+              </label>
               <input
-                type="email"
+                type="text"
                 class="form-control"
-                name="email_user"
-                required />
+                name="name"
+                required
+                autofocus />
+            </div>
+            <div class="mb-3">
+              <label for="name_surname" class="form-label">
+                Apellido
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                name="surname"
+                required
+                autofocus />
             </div>
             <div class="mb-3 form-password-toggle">
               <label class="form-label" for="pass_user">Clave</label>

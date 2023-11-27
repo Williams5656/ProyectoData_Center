@@ -135,6 +135,27 @@ def sql_detalles_empleadosBD(idEmpleado):
             f"Errro en la función sql_detalles_empleadosBD: {e}")
         return None
 
+def accesosReporte():
+    try:
+        with connectionBD() as conexion_MYSQLdb:
+            with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
+                querySQL = ("""
+                    SELECT 
+                        a.id_acceso, 
+                        u.cedula, 
+                        a.fecha, 
+                        a.clave 
+                        FROM accesos a JOIN usuarios u 
+                        WHERE u.id_usuario = a.id_usuario 
+                        ORDER BY u.cedula, a.fecha DESC
+                            """) 
+                cursor.execute(querySQL)
+                accesosBD=cursor.fetchall()
+            return accesosBD
+    except Exception as e:
+        print(
+            f"Errro en la función accesosReporte: {e}")
+        return None
 
 # Funcion Empleados Informe (Reporte)
 def empleadosReporte():
@@ -168,39 +189,24 @@ def empleadosReporte():
 
 
 def generarReporteExcel():
-    dataEmpleados = empleadosReporte()
+    dataAccesos = accesosReporte()
     wb = openpyxl.Workbook()
     hoja = wb.active
 
     # Agregar la fila de encabezado con los títulos
-    cabeceraExcel = ("Nombre", "Apellido", "Sexo",
-                     "Telefono", "Email", "Profesión", "Salario", "Fecha de Ingreso")
+    cabeceraExcel = ("ID", "CEDULA", "FECHA", "CLAVE GENERADA")
 
     hoja.append(cabeceraExcel)
 
-    # Formato para números en moneda colombiana y sin decimales
-    formato_moneda_colombiana = '#,##0'
-
     # Agregar los registros a la hoja
-    for registro in dataEmpleados:
-        nombre_empleado = registro['nombre_empleado']
-        apellido_empleado = registro['apellido_empleado']
-        sexo_empleado = registro['sexo_empleado']
-        telefono_empleado = registro['telefono_empleado']
-        email_empleado = registro['email_empleado']
-        profesion_empleado = registro['profesion_empleado']
-        salario_empleado = registro['salario_empleado']
-        fecha_registro = registro['fecha_registro']
+    for registro in dataAccesos:
+        id_acceso = registro['id_acceso']
+        cedula = registro['cedula']
+        fecha = registro['fecha']
+        clave = registro['clave']
 
         # Agregar los valores a la hoja
-        hoja.append((nombre_empleado, apellido_empleado, sexo_empleado, telefono_empleado, email_empleado, profesion_empleado,
-                     salario_empleado, fecha_registro))
-
-        # Itera a través de las filas y aplica el formato a la columna G
-        for fila_num in range(2, hoja.max_row + 1):
-            columna = 7  # Columna G
-            celda = hoja.cell(row=fila_num, column=columna)
-            celda.number_format = formato_moneda_colombiana
+        hoja.append((id_acceso, cedula, fecha, clave))
 
     fecha_actual = datetime.datetime.now()
     archivoExcel = f"Reporte_empleados_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
@@ -218,6 +224,27 @@ def generarReporteExcel():
 
     # Enviar el archivo como respuesta HTTP
     return send_file(ruta_archivo, as_attachment=True)
+
+def buscarAreaBD(search):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                querySQL = ("""
+                        SELECT 
+                            a.id_area,
+                            a.nombre_area
+                        FROM area AS a
+                        WHERE a.nombre_area LIKE %s 
+                        ORDER BY a.id_area DESC
+                    """)
+                search_pattern = f"%{search}%"  # Agregar "%" alrededor del término de búsqueda
+                mycursor.execute(querySQL, (search_pattern,))
+                resultado_busqueda = mycursor.fetchall()
+                return resultado_busqueda
+
+    except Exception as e:
+        print(f"Ocurrió un error en def buscarEmpleadoBD: {e}")
+        return []
 
 
 def buscarEmpleadoBD(search):
@@ -342,12 +369,24 @@ def lista_usuariosBD():
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                querySQL = "SELECT id, name_surname, email_user, created_user FROM users"
+                querySQL = "SELECT id_usuario, cedula, nombre_usuario, apellido_usuario, id_area, id_rol FROM usuarios"
                 cursor.execute(querySQL,)
                 usuariosBD = cursor.fetchall()
         return usuariosBD
     except Exception as e:
         print(f"Error en lista_usuariosBD : {e}")
+        return []
+
+def lista_areasBD():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT id_area, nombre_area FROM area"
+                cursor.execute(querySQL,)
+                areasBD = cursor.fetchall()
+        return areasBD
+    except Exception as e:
+        print(f"Error en lista_areas : {e}")
         return []
 
 
@@ -381,36 +420,48 @@ def eliminarUsuario(id):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                querySQL = "DELETE FROM users WHERE id=%s"
+                querySQL = "DELETE FROM usuarios WHERE id_usuario=%s"
                 cursor.execute(querySQL, (id,))
                 conexion_MySQLdb.commit()
                 resultado_eliminar = cursor.rowcount
-
         return resultado_eliminar
     except Exception as e:
         print(f"Error en eliminarUsuario : {e}")
-        return []
-
-import random
-import string
-def crearClave():
-    caracteres = string.ascii_letters + string.digits  # Letras mayúsculas, minúsculas y dígitos
-    longitud = 6  # Longitud de la clave
-
-    clave = ''.join(random.choice(caracteres) for _ in range(longitud))
-    print("La clave generada es:", clave)
-    return clave
-##GUARDAR CLAVES GENERADAS EN AUDITORIA
-def guardarClaveAuditoria(clave_audi):
+    
+def eliminarArea(id):
     try:
         with connectionBD() as conexion_MySQLdb:
-            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
-                    sql = "INSERT INTO auditoria(password) VALUES (%s)"
-                    valores = (clave_audi,)
-                    mycursor.execute(sql, valores)
-                    conexion_MySQLdb.commit()
-                    resultado_insert = mycursor.rowcount
-                    return resultado_insert 
-        
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "DELETE FROM area WHERE id_area=%s"
+                cursor.execute(querySQL, (id,))
+                conexion_MySQLdb.commit()
+                resultado_eliminar = cursor.rowcount
+        return resultado_eliminar
     except Exception as e:
-        return f'Se produjo un error en procesar_form_claves: {str(e)}'
+        print(f"Error en eliminarArea : {e}")
+        return []
+    
+def dataReportes():
+    try:
+        with connectionBD() as conexion_MYSQLdb:
+            with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT a.id_acceso, u.cedula, a.fecha, a.clave FROM accesos a JOIN usuarios u WHERE u.id_usuario = a.id_usuario"
+                cursor.execute(querySQL)
+                reportes = cursor.fetchall()
+        return reportes
+    except Exception as e:
+        print(f"Error en listaAccesos : {e}")
+        return []
+
+def lastAccessBD(id):
+    try:
+        with connectionBD() as conexion_MYSQLdb:
+            with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT a.id_acceso, u.cedula, a.fecha, a.clave FROM accesos a JOIN usuarios u WHERE u.id_usuario = a.id_usuario AND u.cedula=%s ORDER BY a.fecha DESC LIMIT 1"
+                cursor.execute(querySQL,(id,))
+                reportes = cursor.fetchone()
+                print(reportes)
+        return reportes
+    except Exception as e:
+        print(f"Error en lastAcceso : {e}")
+        return []

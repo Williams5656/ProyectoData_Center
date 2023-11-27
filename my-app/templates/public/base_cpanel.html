@@ -17,13 +17,24 @@
     {% include 'public/includes/navbar.html' %}
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
-        {% include 'public/includes/menu_sidebar.html' %}
+        {% include 'public/includes/menu_sidebar.html'%}
         <div class="layout-page">
           <div class="content-wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
               {% include 'public/includes/messages.html' %}
               <!---->
               {% block body %}
+
+              {% if dataLogin.rol == 1 %}
+              <div>
+                <h1>BIENVENIDO ADMINISTRADOR</h1>
+              </div>
+              {% endif %}
+              {% if dataLogin.rol == 2 %}
+              <div>
+                <h1>BIENVENIDO USUARIO</h1>
+              </div>
+              {% endif %}
               <!--fin del bloque-->
               {% endblock %}
             </div>

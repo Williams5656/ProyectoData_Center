@@ -10,6 +10,7 @@ from werkzeug.security import check_password_hash
 
 # Importando controllers para el modulo de login
 from controllers.funciones_login import *
+from controllers.funciones_home import *
 PATH_URL_LOGIN = "public/login"
 
 
@@ -24,7 +25,7 @@ def inicio():
 @app.route('/mi-perfil', methods=['GET'])
 def perfil():
     if 'conectado' in session:
-        return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session())
+        return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session(), dataLogin=dataLoginSesion(), areas=lista_areasBD())
     else:
         return redirect(url_for('inicio'))
 
@@ -50,13 +51,14 @@ def cpanelRecoveryPassUser():
 # Crear cuenta de usuario
 @app.route('/saved-register', methods=['POST'])
 def cpanelResgisterUserBD():
-    if request.method == 'POST' and 'name_surname' in request.form and 'pass_user' in request.form:
-        name_surname = request.form['name_surname']
-        email_user = request.form['email_user']
+    if request.method == 'POST' and 'cedula' in request.form and 'pass_user' in request.form:
+        cedula = request.form['cedula']
+        name = request.form['name']
+        surname = request.form['surname']
         pass_user = request.form['pass_user']
 
         resultData = recibeInsertRegisterUser(
-            name_surname, email_user, pass_user)
+            cedula, name, surname, pass_user)
         if (resultData != 0):
             flash('la cuenta fue creada correctamente.', 'success')
             return redirect(url_for('inicio'))
@@ -100,25 +102,26 @@ def loginCliente():
     if 'conectado' in session:
         return redirect(url_for('inicio'))
     else:
-        if request.method == 'POST' and 'email_user' in request.form and 'pass_user' in request.form:
+        if request.method == 'POST' and 'cedula' in request.form and 'pass_user' in request.form:
 
-            email_user = str(request.form['email_user'])
+            cedula = str(request.form['cedula'])
             pass_user = str(request.form['pass_user'])
 
             # Comprobando si existe una cuenta
             conexion_MySQLdb = connectionBD()
             cursor = conexion_MySQLdb.cursor(dictionary=True)
             cursor.execute(
-                "SELECT * FROM users WHERE email_user = %s", [email_user])
+                "SELECT * FROM usuarios WHERE cedula = %s", [cedula])
             account = cursor.fetchone()
 
             if account:
-                if check_password_hash(account['pass_user'], pass_user):
+                if check_password_hash(account['password'], pass_user):
                     # Crear datos de sesión, para poder acceder a estos datos en otras rutas
                     session['conectado'] = True
-                    session['id'] = account['id']
-                    session['name_surname'] = account['name_surname']
-                    session['email_user'] = account['email_user']
+                    session['id'] = account['id_usuario']
+                    session['name'] = account['nombre_usuario']
+                    session['cedula'] = account['cedula']
+                    session['rol'] = account['id_rol']
 
                     flash('la sesión fue correcta.', 'success')
                     return redirect(url_for('inicio'))

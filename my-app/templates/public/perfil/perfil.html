@@ -19,22 +19,43 @@
         action="/actualizar-datos-perfil">
         <div class="card-body">
           <div class="mb-3">
-            <label for="name_surname" class="form-label">Usuario</label>
+            <label for="cedula" class="form-label">Cédula</label>
+            <input
+              class="form-control"
+              type="text"
+              name="cedula"
+              value="{{ info_perfil_session[0]['cedula'] }}"
+              readonly />
+          </div>
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre</label>
             <input
               type="text"
-              name="name_surname"
-              value="{{ info_perfil_session[0]['name_surname'] }}"
+              name="name"
+              value="{{ info_perfil_session[0]['nombre_usuario'] }}"
               class="form-control"
               required />
           </div>
           <div class="mb-3">
-            <label for="email_user" class="form-label">Email</label>
+            <label for="surname" class="form-label">Apellido</label>
             <input
               class="form-control"
-              type="email"
-              name="email_user"
-              value="{{ info_perfil_session[0]['email_user'] }}"
-              readonly />
+              type="text"
+              name="surname"
+              value="{{ info_perfil_session[0]['apellido_usuario'] }}"
+              />
+          </div>
+          <div>
+            <label for="area" class="form-label">Area</label>
+            <select class="form-select" name="selectArea">
+              {% for area in areas%}
+              {% if area.id_area == info_perfil_session[0]['id_area']%}
+              <option value="{{area.id_area}}" selected>{{area.nombre_area}}</option>
+              {%else%}
+              <option value="{{area.id_area}}">{{area.nombre_area}}</option>
+              {%endif%}
+              {%endfor%}
+            </select>
           </div>
           <div class="mb-3 form-password-toggle">
             <label class="form-label" for="pass_actual">Clave Actual</label>
