@@ -1,3 +1,4 @@
+from controllers.funciones_login import *
 from app import app
 from flask import render_template, request, flash, redirect, url_for, session,  jsonify
 from mysql.connector.errors import Error
@@ -42,6 +43,13 @@ def lista_empleados():
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
+@app.route('/lista-de-areas', methods=['GET'])
+def lista_areas():
+    if 'conectado' in session:
+        return render_template('public/usuarios/lista_areas.html', areas=lista_areasBD(), dataLogin=dataLoginSesion())
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
 
 @app.route("/detalles-empleado/", methods=['GET'])
 @app.route("/detalles-empleado/<int:idEmpleado>", methods=['GET'])
@@ -59,11 +67,11 @@ def detalleEmpleado(idEmpleado=None):
 
 
 # Buscadon de empleados
-@app.route("/buscando-empleado", methods=['POST'])
-def viewBuscarEmpleadoBD():
-    resultadoBusqueda = buscarEmpleadoBD(request.json['busqueda'])
+@app.route("/buscando-area", methods=['POST'])
+def viewBuscarAreaBD():
+    resultadoBusqueda = buscarAreaBD(request.json['busqueda'])
     if resultadoBusqueda:
-        return render_template(f'{PATH_URL}/resultado_busqueda_empleado.html', dataBusqueda=resultadoBusqueda)
+        return render_template('public/usuarios/resultado_busqueda_area.html', dataBusqueda=resultadoBusqueda)
     else:
         return jsonify({'fin': 0})
 
@@ -94,7 +102,7 @@ def actualizarEmpleado():
 def usuarios():
     if 'conectado' in session:
         resp_usuariosBD = lista_usuariosBD()
-        return render_template('public/usuarios/lista_usuarios.html', resp_usuariosBD=resp_usuariosBD)
+        return render_template('public/usuarios/lista_usuarios.html',  resp_usuariosBD=lista_usuariosBD(), dataLogin=dataLoginSesion(), areas=lista_areasBD())
     else:
         return redirect(url_for('inicioCpanel'))
 
@@ -113,12 +121,25 @@ def borrarEmpleado(id_empleado, foto_empleado):
     if resp:
         flash('El Empleado fue eliminado correctamente', 'success')
         return redirect(url_for('lista_empleados'))
+    
+@app.route('/borrar-area/<string:id_area>/', methods=['GET'])
+def borrarArea(id_area):
+    resp = eliminarArea(id_area)
+    if resp:
+        flash('El Empleado fue eliminado correctamente', 'success')
+        return redirect(url_for('lista_areas'))
 
 
-@app.route("/descargar-informe-empleados/", methods=['GET'])
+@app.route("/descargar-informe-accesos/", methods=['GET'])
 def reporteBD():
     if 'conectado' in session:
         return generarReporteExcel()
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
+    
+@app.route("/reporte-accesos", methods=['GET'])
+def reporteAccesos():
+    if 'conectado' in session:
+        userData = dataLoginSesion()
+        return render_template('public/perfil/reportes.html',  reportes=dataReportes(),lastAccess=lastAccessBD(userData.get('cedula')), dataLogin=dataLoginSesion())
