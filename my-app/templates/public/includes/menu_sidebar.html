@@ -4,13 +4,15 @@
       <span class="app-brand-logo demo">
         <img
           src="{{ url_for('static', filename ='assets/img/logo.png') }}"
-          alt="Logo" />
+          alt="Logo"
+        />
       </span>
     </a>
 
     <a
       href="javascript:void(0);"
-      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none"
+    >
       <i class="bx bx-chevron-left bx-sm align-middle"></i>
     </a>
   </div>
@@ -20,7 +22,8 @@
     
     {% if dataLogin.rol == 1 %}
     <li
-      class="menu-item {% if request.path == '/registrar-empleado' %} active {% endif %}">
+      class="menu-item {% if request.path == '/registrar-empleado' %} active {% endif %}"
+    >
       <a href="{{ url_for('viewFormEmpleado') }}" class="menu-link">
         <i class="menu-icon bi bi-person-bounding-box"></i>
         <div data-i18n="Basic">Registrar Empleado</div>
@@ -29,7 +32,8 @@
     {%endif%}
     {% if dataLogin.rol == 1 %}
     <li
-      class="menu-item {% if request.path == '/lista-de-empleados' %} active{% endif %}">
+      class="menu-item {% if request.path == '/lista-de-empleados' %} active{% endif %}"
+    >
       <a href="/lista-de-empleados" class="menu-link">
         <i class="menu-icon bi bi-person-lines-fill"></i>
         <div data-i18n="Boxicons">Lista de Empleados</div>
@@ -55,7 +59,8 @@
 
     {% if dataLogin.rol == 1 %}
     <li
-      class="menu-item {% if request.path == '/lista-de-usuarios' %} active {% endif %}">
+      class="menu-item {% if request.path == '/lista-de-usuarios' %} active {% endif %}"
+    >
       <a href="/lista-de-usuarios" class="menu-link">
         <i class="menu-icon bi bi-person-lines-fill"></i>
         <div data-i18n="Tables">Lista de Usuarios</div>
@@ -63,10 +68,19 @@
     </li>
     {%endif%}
     <li
-      class="menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
+      class="menu-item {% if request.path == '/mi-perfil' %} active {% endif %}"
+    >
       <a href="/mi-perfil" class="menu-link">
         <i class="menu-icon bi bi-person-fill-gear"></i>
         <div data-i18n="Tables">Mi Perfil</div>
+      </a>
+    </li>
+    <li
+      class="menu-item {% if request.path == '/interfaz-clave' %} active {% endif %}"
+    >
+      <a href="/interfaz-clave" class="menu-link">
+        <i class="menu-icon bi bi-person-fill-lock"></i>
+        <div data-i18n="Tables">Generar Clave</div>
       </a>
     </li>
     <li class="menu-item">
