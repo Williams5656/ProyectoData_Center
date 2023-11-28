@@ -501,3 +501,33 @@ def lista_rolesBD():
     except Exception as e:
         print(f"Error en select roles : {e}")
         return []
+##CREAR AREA
+def guardarArea(area_name):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                    sql = "INSERT INTO area (nombre_area) VALUES (%s)"
+                    valores = (area_name,)
+                    mycursor.execute(sql, valores)
+                    conexion_MySQLdb.commit()
+                    resultado_insert = mycursor.rowcount
+                    return resultado_insert 
+        
+    except Exception as e:
+        return f'Se produjo un error en crear Area: {str(e)}' 
+    
+##ACTUALIZAR AREA
+def actualizarArea(area_id, area_name):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                sql = """UPDATE area SET nombre_area = %s WHERE id_area = %s"""
+                valores = (area_name, area_id)
+                mycursor.execute(sql, valores)
+                conexion_MySQLdb.commit()
+                resultado_update = mycursor.rowcount
+                return resultado_update 
+        
+    except Exception as e:
+        return f'Se produjo un error al actualizar el área: {str(e)}'
+    

@@ -19,16 +19,17 @@
 
   <div class="menu-inner-shadow"></div>
   <ul class="menu-inner py-5">
-    
     <li
-    class="menu-item {% if request.path == '/interfaz-clave' %} active {% endif %}"
-  >
-    <a href="/interfaz-clave" class="menu-link">
-      <i class="menu-icon bi bi-person-fill-lock"></i>
-      <div data-i18n="Tables">Generar Clave</div>
-    </a>
-  </li>
-    <li class="menu-item {% if request.path == '/reporte-accesos' %} active{%endif%}">
+      class="menu-item {% if request.path == '/interfaz-clave' %} active {% endif %}"
+    >
+      <a href="/interfaz-clave" class="menu-link">
+        <i class="menu-icon bi bi-person-fill-lock"></i>
+        <div data-i18n="Tables">Generar Clave</div>
+      </a>
+    </li>
+    <li
+      class="menu-item {% if request.path == '/reporte-accesos' %} active{%endif%}"
+    >
       <a href="/reporte-accesos" class="menu-link">
         <i class="menu-icon bi bi-file-lock-fill"></i>
         <div data-i18n="Tables">Reporte Accesos</div>
@@ -36,14 +37,14 @@
     </li>
     {% if dataLogin.rol == 1 %}
     <li
-      class="menu-item {% if request.path == '/lista-de-areas' %} active{% endif %}">
+      class="menu-item {% if request.path == '/lista-de-areas' %} active{% endif %}"
+    >
       <a href="/lista-de-areas" class="menu-link">
         <i class="menu-icon bi bi-person-lines-fill"></i>
         <div data-i18n="Boxicons">Lista de Áreas</div>
       </a>
     </li>
-    {%endif%}
-    {% if dataLogin.rol == 1 %}
+    {%endif%} {% if dataLogin.rol == 1 %}
     <li
       class="menu-item {% if request.path == '/lista-de-usuarios' %} active {% endif %}"
     >

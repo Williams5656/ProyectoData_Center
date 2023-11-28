@@ -156,4 +156,34 @@ def generar_clave(id):
     clave_generada = crearClave()  # Llama a la función para generar la clave
     guardarClaveAuditoria(clave_generada,id)
     return clave_generada
-#Crear registro de auditoria
+#CREAR AREA
+@app.route('/crear-area', methods=['GET','POST'])
+def crearArea():
+    if request.method == 'POST':
+        area_name = request.form['nombre_area']  # Asumiendo que 'nombre_area' es el nombre del campo en el formulario
+        resultado_insert = guardarArea(area_name)
+        if resultado_insert:
+            # Éxito al guardar el área
+            flash('El Area fue creada correctamente', 'success')
+            return redirect(url_for('lista_areas'))
+            
+        else:
+            # Manejar error al guardar el área
+            return "Hubo un error al guardar el área."
+    return render_template('public/usuarios/lista_areas')
+##ACTUALIZAR AREA
+@app.route('/actualizar-area/<int:area_id>', methods=['POST'])
+def updateArea(area_id):
+    if request.method == 'POST':
+        nombre_area = request.form['nombre_area']  # Asumiendo que 'nuevo_nombre' es el nombre del campo en el formulario
+        resultado_update = actualizarArea(area_id, nombre_area)
+        if resultado_update:
+           # Éxito al actualizar el área
+            flash('El actualizar fue creada correctamente', 'success')
+            return redirect(url_for('lista_areas'))
+        else:
+            # Manejar error al actualizar el área
+            return "Hubo un error al actualizar el área."
+
+    return redirect(url_for('lista_areas'))
+    
