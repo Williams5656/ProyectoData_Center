@@ -1,7 +1,0 @@
----INSTRUCCIONES PARA MODIFICAR LA ESTRUCTURA DEL PROYECTO---
-1.Dentro del proyecto my-app, para la modificación del proyecto,
-estructura y diseño, trabajaremos con las siguientes carpetas:
-    *conexion(para la coneccion a base de datos)
-    *templates\public (para diseño de la pagina y componentes en html)
-    *routers (para el uso y gestion de metodos http y redireccionamiento del
-    las rutas o URls )
