@@ -103,12 +103,11 @@ def actualizarEmpleado():
 @app.route("/lista-de-usuarios", methods=['GET'])
 def usuarios():
     if 'conectado' in session:
-        resp_usuariosBD = lista_usuariosBD()
-        return render_template('public/usuarios/lista_usuarios.html',  resp_usuariosBD=lista_usuariosBD(), dataLogin=dataLoginSesion(), areas=lista_areasBD())
+        return render_template('public/usuarios/lista_usuarios.html',  resp_usuariosBD=lista_usuariosBD(), dataLogin=dataLoginSesion(), areas=lista_areasBD(), roles = lista_rolesBD())
     else:
         return redirect(url_for('inicioCpanel'))
 
-
+#Ruta especificada para eliminar un usuario
 @app.route('/borrar-usuario/<string:id>', methods=['GET'])
 def borrarUsuario(id):
     resp = eliminarUsuario(id)

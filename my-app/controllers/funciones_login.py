@@ -57,12 +57,13 @@ def validarDataRegisterLogin(cedula, name, surname, pass_user):
         return []
 
 
-def info_perfil_session():
+def info_perfil_session(id):
+    print(id)
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                querySQL = "SELECT nombre_usuario, apellido_usuario, cedula, id_area, id_rol FROM usuarios WHERE id_usuario = %s"
-                cursor.execute(querySQL, (session['id'],))
+                querySQL = "SELECT id_usuario, nombre_usuario, apellido_usuario, cedula, id_area, id_rol FROM usuarios WHERE id_usuario = %s"
+                cursor.execute(querySQL, (id,))
                 info_perfil = cursor.fetchall()
         return info_perfil
     except Exception as e:
@@ -70,19 +71,22 @@ def info_perfil_session():
         return []
 
 
-def procesar_update_perfil(data_form):
+def procesar_update_perfil(data_form,id):
     # Extraer datos del diccionario data_form
-    id_user = session['id']
+    id_user = id
     cedula = data_form['cedula']
     nombre_usuario = data_form['name']
     apellido_usuario = data_form['surname']
     id_area = data_form['selectArea']
+    id_rol= data_form['selectRol']
     pass_actual = data_form['pass_actual']
     new_pass_user = data_form['new_pass_user']
     repetir_pass_user = data_form['repetir_pass_user']
-    print(id_area)
-    if not pass_actual or not nombre_usuario:
-        return 3
+
+
+    
+    if not pass_actual and not new_pass_user and not repetir_pass_user:
+            return updatePefilSinPass(id_user, nombre_usuario, apellido_usuario, id_area, id_rol)
 
     with connectionBD() as conexion_MySQLdb:
         with conexion_MySQLdb.cursor(dictionary=True) as cursor:
@@ -90,11 +94,9 @@ def procesar_update_perfil(data_form):
             cursor.execute(querySQL, (cedula,))
             account = cursor.fetchone()
             if account:
+                
                 if check_password_hash(account['password'], pass_actual):
                     # Verificar si new_pass_user y repetir_pass_user están vacías
-                    if not new_pass_user or not repetir_pass_user:
-                        return updatePefilSinPass(id_user, nombre_usuario)
-                    else:
                         if new_pass_user != repetir_pass_user:
                             return 2
                         else:
@@ -125,17 +127,21 @@ def procesar_update_perfil(data_form):
                 return 0
 
 
-def updatePefilSinPass(id_user, name_surname):
+
+def updatePefilSinPass(id_user, nombre_usuario, apellido_usuario, id_area, id_rol):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = """
-                    UPDATE users
+                    UPDATE usuarios
                     SET 
-                        name_surname = %s
-                    WHERE id = %s
+                        nombre_usuario = %s,
+                        apellido_usuario = %s,
+                        id_area = %s,
+                        id_rol = %s
+                    WHERE id_usuario = %s
                 """
-                params = (name_surname, id_user)
+                params = ( nombre_usuario, apellido_usuario, id_area, id_rol, id_user)
                 cursor.execute(querySQL, params)
                 conexion_MySQLdb.commit()
         return cursor.rowcount

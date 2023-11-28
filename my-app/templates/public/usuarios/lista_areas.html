@@ -45,6 +45,13 @@
               
               <td width="10px">
                 <a
+                  href="{{ url_for('viewEditarEmpleado', id = area.id_area) }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Actualizar Registro">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Actualizar
+                </a>
+                <a
                   href="{{ url_for('borrarArea', id_area = area.id_area) }}"
                   class="btn btn-danger btn-sm"
                   data-bs-toggle="tooltip"

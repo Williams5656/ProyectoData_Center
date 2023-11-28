@@ -11,7 +11,7 @@ from werkzeug.security import check_password_hash
 # Importando controllers para el modulo de login
 from controllers.funciones_login import *
 from controllers.funciones_home import *
-PATH_URL_LOGIN = "public/login"
+PATH_URL_LOGIN = "/public/login"
 
 
 @app.route('/', methods=['GET'])
@@ -22,10 +22,11 @@ def inicio():
         return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
 
-@app.route('/mi-perfil', methods=['GET'])
-def perfil():
+@app.route('/mi-perfil/<string:id>', methods=['GET'])
+def perfil(id):
     if 'conectado' in session:
-        return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session(), dataLogin=dataLoginSesion(), areas=lista_areasBD())
+        
+        return render_template(f'public/perfil/perfil.html', info_perfil_session=info_perfil_session(id), dataLogin=dataLoginSesion(), areas=lista_areasBD(), roles=lista_rolesBD())
     else:
         return redirect(url_for('inicio'))
 
@@ -70,24 +71,27 @@ def cpanelResgisterUserBD():
 
 
 # Actualizar datos de mi perfil
-@app.route("/actualizar-datos-perfil", methods=['POST'])
-def actualizarPerfil():
+@app.route("/actualizar-datos-perfil/<int:id>", methods=['POST'])
+def actualizarPerfil(id):
     if request.method == 'POST':
         if 'conectado' in session:
-            respuesta = procesar_update_perfil(request.form)
+            respuesta = procesar_update_perfil(request.form,id)
             if respuesta == 1:
                 flash('Los datos fuerón actualizados correctamente.', 'success')
                 return redirect(url_for('inicio'))
             elif respuesta == 0:
                 flash(
                     'La contraseña actual esta incorrecta, por favor verifique.', 'error')
-                return redirect(url_for('perfil'))
+                return redirect(url_for('perfil',id=id))
             elif respuesta == 2:
                 flash('Ambas claves deben se igual, por favor verifique.', 'error')
-                return redirect(url_for('perfil'))
+                return redirect(url_for('perfil',id=id))
             elif respuesta == 3:
                 flash('La Clave actual es obligatoria.', 'error')
-                return redirect(url_for('perfil'))
+                return redirect(url_for('perfil',id=id))
+            else: 
+                flash('Clave actual incorrecta', 'error')
+                return redirect(url_for('perfil',id=id))
         else:
             flash('primero debes iniciar sesión.', 'error')
             return redirect(url_for('inicio'))
@@ -106,9 +110,8 @@ def loginCliente():
 
             cedula = str(request.form['cedula'])
             pass_user = str(request.form['pass_user'])
-
-            # Comprobando si existe una cuenta
             conexion_MySQLdb = connectionBD()
+            print(conexion_MySQLdb)
             cursor = conexion_MySQLdb.cursor(dictionary=True)
             cursor.execute(
                 "SELECT * FROM usuarios WHERE cedula = %s", [cedula])

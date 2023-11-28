@@ -489,3 +489,15 @@ def guardarClaveAuditoria(clave_audi,id):
         
     except Exception as e:
         return f'Se produjo un error en crear Clave: {str(e)}'
+    
+def lista_rolesBD():
+    try:
+        with connectionBD() as conexion_MYSQLdb:
+            with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "SELECT * FROM rol"
+                cursor.execute(querySQL)
+                roles = cursor.fetchall()
+                return roles
+    except Exception as e:
+        print(f"Error en select roles : {e}")
+        return []
