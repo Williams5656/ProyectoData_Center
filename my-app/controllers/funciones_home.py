@@ -15,7 +15,7 @@ from os import path  # Modulo para obtener la ruta o directorio
 
 import openpyxl  # Para generar el excel
 # biblioteca o modulo send_file para forzar la descarga
-from flask import send_file
+from flask import send_file, session
 
 
 def procesar_form_empleado(dataForm, foto_perfil):
@@ -136,26 +136,49 @@ def sql_detalles_empleadosBD(idEmpleado):
         return None
 
 def accesosReporte():
-    try:
-        with connectionBD() as conexion_MYSQLdb:
-            with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
-                querySQL = ("""
-                    SELECT 
-                        a.id_acceso, 
-                        u.cedula, 
-                        a.fecha, 
-                        a.clave 
-                        FROM accesos a JOIN usuarios u 
-                        WHERE u.id_usuario = a.id_usuario 
-                        ORDER BY u.cedula, a.fecha DESC
-                            """) 
-                cursor.execute(querySQL)
-                accesosBD=cursor.fetchall()
-            return accesosBD
-    except Exception as e:
-        print(
-            f"Errro en la función accesosReporte: {e}")
-        return None
+    if session['rol'] == 1 :
+        try:
+            with connectionBD() as conexion_MYSQLdb:
+                with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
+                    querySQL = ("""
+                        SELECT 
+                            a.id_acceso, 
+                            u.cedula, 
+                            a.fecha, 
+                            a.clave 
+                            FROM accesos a JOIN usuarios u 
+                            WHERE u.id_usuario = a.id_usuario 
+                            ORDER BY u.cedula, a.fecha DESC
+                                """) 
+                    cursor.execute(querySQL)
+                    accesosBD=cursor.fetchall()
+                return accesosBD
+        except Exception as e:
+            print(
+                f"Errro en la función accesosReporte: {e}")
+            return None
+    else:
+        cedula = session['cedula']
+        try:
+            with connectionBD() as conexion_MYSQLdb:
+                with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
+                    querySQL = ("""
+                        SELECT 
+                            a.id_acceso, 
+                            u.cedula, 
+                            a.fecha, 
+                            a.clave 
+                            FROM accesos a JOIN usuarios u 
+                            WHERE u.id_usuario = a.id_usuario AND u.cedula = %s
+                            ORDER BY u.cedula, a.fecha DESC
+                                """) 
+                    cursor.execute(querySQL,(cedula,))
+                    accesosBD=cursor.fetchall()
+                return accesosBD
+        except Exception as e:
+            print(
+                f"Errro en la función accesosReporte: {e}")
+            return None
 
 # Funcion Empleados Informe (Reporte)
 def empleadosReporte():
@@ -209,7 +232,7 @@ def generarReporteExcel():
         hoja.append((id_acceso, cedula, fecha, clave))
 
     fecha_actual = datetime.datetime.now()
-    archivoExcel = f"Reporte_empleados_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
+    archivoExcel = f"Reporte_accesos_{session['cedula']}_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
     carpeta_descarga = "../static/downloads-excel"
     ruta_descarga = os.path.join(os.path.dirname(
         os.path.abspath(__file__)), carpeta_descarga)

@@ -11,18 +11,20 @@ import re
 from werkzeug.security import generate_password_hash
 
 
-def recibeInsertRegisterUser(cedula, name, surname, pass_user):
+def recibeInsertRegisterUser(cedula, name, surname, id_area, id_rol, pass_user):
     respuestaValidar = validarDataRegisterLogin(
         cedula, name, surname, pass_user)
 
     if (respuestaValidar):
         nueva_password = generate_password_hash(pass_user, method='scrypt')
-        rol = 2
         try:
             with connectionBD() as conexion_MySQLdb:
                 with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
-                    sql = "INSERT INTO usuarios(cedula, nombre_usuario, apellido_usuario, password, id_rol) VALUES (%s, %s, %s, %s, %s)"
-                    valores = (cedula, name, surname, nueva_password, rol)
+                    sql = """
+                    INSERT INTO usuarios(cedula, nombre_usuario, apellido_usuario, id_area, id_rol, password) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """
+                    valores = (cedula, name, surname, id_area, id_rol, nueva_password)
                     mycursor.execute(sql, valores)
                     conexion_MySQLdb.commit()
                     resultado_insert = mycursor.rowcount
@@ -79,12 +81,41 @@ def procesar_update_perfil(data_form,id):
     apellido_usuario = data_form['surname']
     id_area = data_form['selectArea']
     id_rol= data_form['selectRol']
-    pass_actual = data_form['pass_actual']
+    
     new_pass_user = data_form['new_pass_user']
+    
+
+    if session['rol'] == 1 :
+        try:
+            nueva_password = generate_password_hash(
+                new_pass_user, method='scrypt')
+            with connectionBD() as conexion_MySQLdb:
+                with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                    querySQL = """
+                        UPDATE usuarios
+                        SET 
+                            nombre_usuario = %s,
+                            apellido_usuario = %s,
+                            id_area = %s,
+                            id_rol = %s,
+                            password = %s
+                        WHERE id_usuario = %s
+                    """
+                    params = (nombre_usuario,apellido_usuario, id_area, id_rol,
+                                nueva_password, id_user)
+                    cursor.execute(querySQL, params)
+                    conexion_MySQLdb.commit()
+            return cursor.rowcount or []
+        except Exception as e:
+            print(
+                f"Ocurrió en procesar_update_perfil: {e}")
+            return []
+    
+    pass_actual = data_form['pass_actual']
     repetir_pass_user = data_form['repetir_pass_user']
 
+    print(id_area+" HOLA "+id_rol)
 
-    
     if not pass_actual and not new_pass_user and not repetir_pass_user:
             return updatePefilSinPass(id_user, nombre_usuario, apellido_usuario, id_area, id_rol)
 

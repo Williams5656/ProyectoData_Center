@@ -130,6 +130,9 @@ def borrarArea(id_area):
     if resp:
         flash('El Empleado fue eliminado correctamente', 'success')
         return redirect(url_for('lista_areas'))
+    else:
+        flash('Hay usuarios que pertenecen a esta área', 'error')
+        return redirect(url_for('lista_areas'))
 
 
 @app.route("/descargar-informe-accesos/", methods=['GET'])
@@ -171,12 +174,14 @@ def crearArea():
             # Manejar error al guardar el área
             return "Hubo un error al guardar el área."
     return render_template('public/usuarios/lista_areas')
+
 ##ACTUALIZAR AREA
-@app.route('/actualizar-area/<int:area_id>', methods=['POST'])
-def updateArea(area_id):
+@app.route('/actualizar-area', methods=['POST'])
+def updateArea():
     if request.method == 'POST':
         nombre_area = request.form['nombre_area']  # Asumiendo que 'nuevo_nombre' es el nombre del campo en el formulario
-        resultado_update = actualizarArea(area_id, nombre_area)
+        id_area = request.form['id_area']
+        resultado_update = actualizarArea(id_area, nombre_area)
         if resultado_update:
            # Éxito al actualizar el área
             flash('El actualizar fue creada correctamente', 'success')

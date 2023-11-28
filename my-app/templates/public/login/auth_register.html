@@ -1,4 +1,4 @@
-{% extends 'public/login/base_login.html' %}
+{% extends 'public/base_cpanel.html' %}
 <!---->
 {% block title %}Crud con Python 🐍 | crear cuenta{% endblock %}
 <!---->
@@ -10,17 +10,15 @@
       <div class="card">
         <div class="card-body">
           <div class="app-brand justify-content-center">
-            <span class="app-brand-logo">
-              <img
-                class="logo"
-                src="{{ url_for('static', filename ='assets/img/logo.png') }}"
-                alt="Logo" />
-            </span>
+            <div class="col-md-12">
+              <h3 class="text-center mt-5 mb-3">REGISTRAR USUARIO</h3>
+              <hr />
+            </div>
           </div>
 
           <form
             class="mb-3"
-            action="{{ url_for('cpanelResgisterUserBD') }}"
+            action="{{ url_for('cpanelRegisterUserBD') }}"
             method="POST">
             <div class="mb-3">
               <label for="cedula" class="form-label">
@@ -33,29 +31,53 @@
                 required
                 autofocus />
             </div>
-            <div class="mb-3">
-              <label for="name_surname" class="form-label">
-                Nombre
-              </label>
-              <input
-                type="text"
-                class="form-control"
-                name="name"
-                required
-                autofocus />
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="name_surname" class="form-label">
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="name"
+                  required
+                  autofocus />
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="name_surname" class="form-label">
+                  Apellido
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="surname"
+                  required
+                  autofocus />
+              </div>
+
             </div>
-            <div class="mb-3">
-              <label for="name_surname" class="form-label">
-                Apellido
-              </label>
-              <input
-                type="text"
-                class="form-control"
-                name="surname"
-                required
-                autofocus />
+            
+            <div class="row">
+              <div class="mt-3 col-md-6">
+                <label for="area" class="form-label">Area</label>
+                <select class="form-select" name="selectArea" {%if dataLogin.rol == 2 %} disabled {%endif%}>
+                  {% for area in areas%}
+                  <option value="{{area.id_area}}">{{area.nombre_area}}</option>
+                  {%endfor%}
+                </select>
+              </div>
+              <div class="mt-3 col-md-6" >
+                <label for="rol" class="form-label">Rol</label>
+                <select class="form-select" name="selectRol" {%if dataLogin.rol == 2 %} disabled {%endif%}>
+                  {% for rol in roles%}
+                  <option value="{{rol.id_rol}}">{{rol.nombre_rol}}</option>
+                  {%endfor%}
+                </select>
+              </div>
             </div>
-            <div class="mb-3 form-password-toggle">
+
+            
+            <div class="mb-3 form-password-toggle mt-3">
               <label class="form-label" for="pass_user">Clave</label>
               <div class="input-group input-group-merge">
                 <input
@@ -79,7 +101,7 @@
 
           <div class="text-center">
             <a
-              href="{{ url_for('inicio') }}"
+              href="{{ url_for('usuarios') }}"
               class="d-flex align-items-center justify-content-center">
               <i class="bx bx-chevron-left scaleX-n1-rtl bx-sm"></i>
               volver
