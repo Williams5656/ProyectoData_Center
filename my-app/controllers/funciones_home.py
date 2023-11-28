@@ -390,3 +390,27 @@ def eliminarUsuario(id):
     except Exception as e:
         print(f"Error en eliminarUsuario : {e}")
         return []
+
+import random
+import string
+def crearClave():
+    caracteres = string.ascii_letters + string.digits  # Letras mayúsculas, minúsculas y dígitos
+    longitud = 6  # Longitud de la clave
+
+    clave = ''.join(random.choice(caracteres) for _ in range(longitud))
+    print("La clave generada es:", clave)
+    return clave
+##GUARDAR CLAVES GENERADAS EN AUDITORIA
+def guardarClaveAuditoria(clave_audi):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
+                    sql = "INSERT INTO auditoria(password) VALUES (%s)"
+                    valores = (clave_audi,)
+                    mycursor.execute(sql, valores)
+                    conexion_MySQLdb.commit()
+                    resultado_insert = mycursor.rowcount
+                    return resultado_insert 
+        
+    except Exception as e:
+        return f'Se produjo un error en procesar_form_claves: {str(e)}'

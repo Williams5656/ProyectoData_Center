@@ -9,6 +9,8 @@ from controllers.funciones_home import *
 PATH_URL = "public/empleados"
 
 
+    
+
 @app.route('/registrar-empleado', methods=['GET'])
 def viewFormEmpleado():
     if 'conectado' in session:
@@ -105,6 +107,7 @@ def borrarUsuario(id):
     if resp:
         flash('El Usuario fue eliminado correctamente', 'success')
         return redirect(url_for('usuarios'))
+    
 
 
 @app.route('/borrar-empleado/<string:id_empleado>/<string:foto_empleado>', methods=['GET'])
@@ -122,3 +125,14 @@ def reporteBD():
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
+
+@app.route("/interfaz-clave", methods=['GET','POST'])
+def claves():
+    return render_template('public/usuarios/user_login.html')
+    
+@app.route('/generar-y-guardar-clave', methods=['GET','POST'])
+def generar_clave():
+    clave_generada = crearClave()  # Llama a la función para generar la clave
+    guardarClaveAuditoria(clave_generada)
+    return clave_generada 
+#Crear registro de auditoria
