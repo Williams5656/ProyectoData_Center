@@ -105,7 +105,7 @@ def procesar_update_perfil(data_form,id):
                                 nueva_password, id_user)
                     cursor.execute(querySQL, params)
                     conexion_MySQLdb.commit()
-            return cursor.rowcount or []
+            return 1
         except Exception as e:
             print(
                 f"Ocurrió en procesar_update_perfil: {e}")
