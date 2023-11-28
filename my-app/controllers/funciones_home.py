@@ -141,14 +141,12 @@ def accesosReporte():
             with connectionBD() as conexion_MYSQLdb:
                 with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
                     querySQL = ("""
-                        SELECT 
-                            a.id_acceso, 
-                            u.cedula, 
-                            a.fecha, 
-                            a.clave 
-                            FROM accesos a JOIN usuarios u 
-                            WHERE u.id_usuario = a.id_usuario 
-                            ORDER BY u.cedula, a.fecha DESC
+                        SELECT a.id_acceso, u.cedula, a.fecha, r.nombre_area, a.clave 
+                        FROM accesos a 
+                        JOIN usuarios u 
+                        JOIN area r
+                        WHERE u.id_area = r.id_area AND u.id_usuario = a.id_usuario
+                        ORDER BY u.cedula, a.fecha DESC
                                 """) 
                     cursor.execute(querySQL)
                     accesosBD=cursor.fetchall()
@@ -166,10 +164,12 @@ def accesosReporte():
                         SELECT 
                             a.id_acceso, 
                             u.cedula, 
-                            a.fecha, 
+                            a.fecha,
+                            r.nombre_area, 
                             a.clave 
-                            FROM accesos a JOIN usuarios u 
-                            WHERE u.id_usuario = a.id_usuario AND u.cedula = %s
+                            FROM accesos a 
+                            JOIN usuarios u JOIN area r 
+                            WHERE u.id_usuario = a.id_usuario AND u.id_area = r.id_area AND u.cedula = %s
                             ORDER BY u.cedula, a.fecha DESC
                                 """) 
                     cursor.execute(querySQL,(cedula,))
@@ -217,7 +217,7 @@ def generarReporteExcel():
     hoja = wb.active
 
     # Agregar la fila de encabezado con los títulos
-    cabeceraExcel = ("ID", "CEDULA", "FECHA", "CLAVE GENERADA")
+    cabeceraExcel = ("ID", "CEDULA", "FECHA", "ÁREA", "CLAVE GENERADA")
 
     hoja.append(cabeceraExcel)
 
@@ -226,10 +226,11 @@ def generarReporteExcel():
         id_acceso = registro['id_acceso']
         cedula = registro['cedula']
         fecha = registro['fecha']
+        area = registro['nombre_area']
         clave = registro['clave']
 
         # Agregar los valores a la hoja
-        hoja.append((id_acceso, cedula, fecha, clave))
+        hoja.append((id_acceso, cedula, fecha,area, clave))
 
     fecha_actual = datetime.datetime.now()
     archivoExcel = f"Reporte_accesos_{session['cedula']}_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
@@ -469,7 +470,14 @@ def dataReportes():
     try:
         with connectionBD() as conexion_MYSQLdb:
             with conexion_MYSQLdb.cursor(dictionary=True) as cursor:
-                querySQL = "SELECT a.id_acceso, u.cedula, a.fecha, a.clave FROM accesos a JOIN usuarios u WHERE u.id_usuario = a.id_usuario ORDER BY a.fecha DESC"
+                querySQL = """
+                SELECT a.id_acceso, u.cedula, a.fecha, r.nombre_area, a.clave 
+                FROM accesos a 
+                JOIN usuarios u 
+                JOIN area r
+                WHERE u.id_area = r.id_area AND u.id_usuario = a.id_usuario
+                ORDER BY u.cedula, a.fecha DESC
+                """
                 cursor.execute(querySQL)
                 reportes = cursor.fetchall()
         return reportes
